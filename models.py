@@ -3,28 +3,25 @@ import torch.nn as nn
 
 
 class GCN_LSTM(nn.Module):
-    def __init__(
-        self,
-        input_dim,
-        conv_output_dim,
-        lstm_hid_dim,
-        adj_mat,
-        forecast_horizon: int,
-        multi_horizon: bool,
-        last_num_layers=2,
-        device=None,
-    ) -> None:
+    def __init__(self,
+                 input_dim,
+                 conv_output_dim,
+                 lstm_hid_dim,
+                 adj_mat,
+                 forecast_horizon: int,
+                 multi_horizon: bool,
+                 last_num_layers=2,
+                 device=None,
+                 ) -> None:
         super().__init__()
         if device is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = device
 
-        self.gcn = GraphConvolutionLayer(
-            input_dim=input_dim,
-            output_dim=conv_output_dim,
-            adj_mat=adj_mat,
-            device=device,
-        )
+        self.gcn = GraphConvolutionLayer(input_dim=input_dim,
+                                         output_dim=conv_output_dim,
+                                         adj_mat=adj_mat,
+                                         device=device)
 
         self.lstm = torch.nn.LSTM(
             input_size=conv_output_dim,
@@ -47,7 +44,8 @@ class GCN_LSTM(nn.Module):
             output_dims,
         ) = gcn_output.size()
         gcn_output = gcn_output.transpose(1, 2)
-        gcn_output = gcn_output.reshape(batch_size * num_nodes, seq_len, output_dims)
+        gcn_output = gcn_output.reshape(
+            batch_size * num_nodes, seq_len, output_dims)
 
         whole_hidden_state, (
             last_hiden_state,
